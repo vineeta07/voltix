@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 264 64" width="264" height="64" role="img" aria-label="VOLTIX"><title>VOLTIX</title>
+<g transform="translate(0,0) scale(1.0)">
+  <rect width="64" height="64" rx="16" fill="#0F2A3A"/>
+  <rect x="12" y="19" width="24" height="7" rx="3.5" fill="#1F9E89" opacity="0.55"/>
+  <rect x="20" y="29" width="24" height="7" rx="3.5" fill="#1F9E89" opacity="0.8"/>
+  <rect x="28" y="39" width="24" height="7" rx="3.5" fill="#1F9E89"/>
+  <circle cx="50" cy="22" r="4" fill="#F2A93B"/>
+</g>
+<path transform="translate(84,18)" d="M0 0 L11 28 L22 0" fill="none" stroke="#0F2A3A" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/>
+<ellipse cx="132" cy="32" rx="13" ry="14" fill="none" stroke="#0F2A3A" stroke-width="5.5"/>
+<path transform="translate(158,18)" d="M0 0 L0 28 L17 28" fill="none" stroke="#0F2A3A" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path transform="translate(188,18)" d="M0 0 L22 0 M11 0 L11 28" fill="none" stroke="#0F2A3A" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path transform="translate(223,18)" d="M0 0 L0 28" fill="none" stroke="#0F2A3A" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path transform="translate(236,18)" d="M0 0 L22 28 M22 0 L0 28" fill="none" stroke="#0F2A3A" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

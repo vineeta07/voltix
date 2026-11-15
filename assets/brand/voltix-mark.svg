@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="VOLTIX"><title>VOLTIX</title>
+<g transform="translate(0,0) scale(1.0)">
+  <rect width="64" height="64" rx="16" fill="#0F2A3A"/>
+  <rect x="12" y="19" width="24" height="7" rx="3.5" fill="#1F9E89" opacity="0.55"/>
+  <rect x="20" y="29" width="24" height="7" rx="3.5" fill="#1F9E89" opacity="0.8"/>
+  <rect x="28" y="39" width="24" height="7" rx="3.5" fill="#1F9E89"/>
+  <circle cx="50" cy="22" r="4" fill="#F2A93B"/>
+</g>
+</svg>

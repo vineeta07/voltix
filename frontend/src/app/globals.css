@@ -1,0 +1,210 @@
+@import "tailwindcss";
+
+@import "@fontsource-variable/newsreader/opsz.css";
+@import "@fontsource-variable/newsreader/opsz-italic.css";
+@import "@fontsource/ibm-plex-sans/400.css";
+@import "@fontsource/ibm-plex-sans/500.css";
+@import "@fontsource/ibm-plex-sans/600.css";
+@import "@fontsource/ibm-plex-mono/400.css";
+@import "@fontsource/ibm-plex-mono/500.css";
+@import "@fontsource/ibm-plex-sans-devanagari/400.css";
+@import "@fontsource/ibm-plex-sans-devanagari/600.css";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Brand tokens. Light is the default; .dark on <html> switches. */
+:root {
+  --paper: #f7f6f2;
+  --panel: #ffffff;
+  --sunk: #efede7;
+  --ink: #0f2a3a;
+  --ink-2: #41576376;
+  --muted: #5a6b74;
+  --line: #0f2a3a1f;
+  --line-strong: #0f2a3a3d;
+  --teal: #1f9e89;
+  --teal-ink: #126a5b; /* teal that passes AA as text on paper */
+  --teal-wash: #1f9e8914;
+  --amber: #f2a93b;
+  --amber-ink: #8a5a09;
+  --amber-wash: #f2a93b22;
+  --safe: #2e9d5b;
+  --safe-ink: #1d7341;
+  --danger: #d64545;
+  --danger-ink: #b23232;
+  --danger-wash: #d6454514;
+  --grey: #9aa6ab;
+  --shadow: 0 1px 2px #0f2a3a0a, 0 6px 20px -12px #0f2a3a26;
+  color-scheme: light;
+}
+.dark {
+  --paper: #0b1f2b;
+  --panel: #173a4d;
+  --sunk: #102c3b;
+  --ink: #eef3f2;
+  --muted: #a9bcc4;
+  --line: #ffffff1f;
+  --line-strong: #ffffff3d;
+  --teal-ink: #6fd3c1;
+  --teal-wash: #1f9e8926;
+  --amber-ink: #f6c779;
+  --amber-wash: #f2a93b26;
+  --safe-ink: #7ed6a2;
+  --danger-ink: #f39393;
+  --danger-wash: #d6454526;
+  --grey: #7f949d;
+  --shadow: 0 1px 2px #0000002e, 0 8px 24px -14px #00000080;
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-paper: var(--paper);
+  --color-panel: var(--panel);
+  --color-sunk: var(--sunk);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-teal: var(--teal);
+  --color-teal-ink: var(--teal-ink);
+  --color-teal-wash: var(--teal-wash);
+  --color-amber: var(--amber);
+  --color-amber-ink: var(--amber-ink);
+  --color-amber-wash: var(--amber-wash);
+  --color-safe: var(--safe);
+  --color-safe-ink: var(--safe-ink);
+  --color-danger: var(--danger);
+  --color-danger-ink: var(--danger-ink);
+  --color-danger-wash: var(--danger-wash);
+  --color-grey: var(--grey);
+  --font-sans: "IBM Plex Sans", "IBM Plex Sans Devanagari", system-ui, sans-serif;
+  --font-display: "Newsreader Variable", "Iowan Old Style", Georgia, serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", monospace;
+  --radius-card: 12px;
+  --shadow-card: var(--shadow);
+  --text-xs: 12px;
+  --text-sm: 14px;
+  --text-base: 16px;
+  --text-lg: 20px;
+  --text-xl: 24px;
+  --text-2xl: 32px;
+  --text-3xl: 40px;
+}
+
+html {
+  background: var(--paper);
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 1.5;
+  overflow-x: hidden;
+}
+::selection {
+  background: #1f9e8940;
+}
+:focus-visible {
+  outline: 2px solid var(--teal);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.font-display {
+  font-family: var(--font-display);
+  font-optical-sizing: auto;
+  letter-spacing: -0.012em;
+}
+.num {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "zero" 0;
+}
+.tnum {
+  font-variant-numeric: tabular-nums;
+}
+/* small mono caption used for section numbers and table heads */
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+}
+.rule {
+  border-top: 1px solid var(--line);
+}
+
+/* The only looping motion in the product: the LIVE pulse. */
+@keyframes live-pulse {
+  0% { box-shadow: 0 0 0 0 color-mix(in srgb, currentColor 45%, transparent); }
+  70% { box-shadow: 0 0 0 6px transparent; }
+  100% { box-shadow: 0 0 0 0 transparent; }
+}
+.live-dot {
+  animation: live-pulse 2s ease-out infinite;
+}
+@keyframes skeleton {
+  0%, 100% { opacity: 0.55; }
+  50% { opacity: 1; }
+}
+.skeleton {
+  background: var(--sunk);
+  border-radius: 6px;
+  animation: skeleton 1.4s ease-in-out infinite;
+}
+@keyframes rise {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: none; }
+}
+.rise {
+  animation: rise 0.2s ease-out both;
+}
+@keyframes draw {
+  to { stroke-dashoffset: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* form controls */
+.input {
+  width: 100%;
+  height: 44px;
+  padding: 0 12px;
+  background: var(--panel);
+  color: var(--ink);
+  border: 1px solid var(--line-strong);
+  border-radius: 8px;
+  font-size: 16px;
+  transition: border-color 0.15s;
+}
+.input:hover { border-color: var(--muted); }
+.input:focus { outline: 2px solid var(--teal); outline-offset: 0; border-color: transparent; }
+textarea.input { height: auto; padding: 10px 12px; }
+
+table.data { width: 100%; border-collapse: collapse; font-size: 14px; }
+table.data th {
+  text-align: left; font-weight: 500; color: var(--muted); font-size: 12px;
+  letter-spacing: 0.06em; text-transform: uppercase; font-family: var(--font-mono);
+  padding: 10px 12px; border-bottom: 1px solid var(--line-strong); white-space: nowrap;
+}
+table.data td { padding: 12px; border-bottom: 1px solid var(--line); vertical-align: middle; }
+table.data tr:last-child td { border-bottom: 0; }
+table.data tbody tr { transition: background-color 0.15s; }
+table.data tbody tr:hover { background: var(--teal-wash); }

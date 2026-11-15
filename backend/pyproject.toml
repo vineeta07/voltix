@@ -1,0 +1,45 @@
+[project]
+name = "voltix"
+version = "0.1.0"
+description = "VOLTIX: the traffic signal for EV charging on a neighbourhood transformer"
+requires-python = ">=3.12"
+license = { text = "MIT" }
+dependencies = [
+  "fastapi>=0.115",
+  "uvicorn[standard]>=0.32",
+  "sqlalchemy>=2.0",
+  "alembic>=1.14",
+  "pydantic>=2.9",
+  "pydantic-settings>=2.6",
+  "aiomqtt>=2.3",
+  "ortools>=9.11",
+  "lightgbm>=4.5",
+  "pandas>=2.2",
+  "numpy>=2.0",
+  "httpx>=0.27",
+  "psycopg[binary]>=3.2",
+  "ocpp>=2.0",
+  "websockets>=13",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "pytest-asyncio>=0.24", "ruff>=0.8", "mypy>=1.13", "pip-audit>=2.7"]
+
+[tool.setuptools.packages.find]
+include = ["app*"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]
+ignore = ["B008"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+
+[tool.mypy]
+python_version = "3.12"
+ignore_missing_imports = true

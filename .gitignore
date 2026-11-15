@@ -1,0 +1,17 @@
+.env
+.env.local
+*.db
+*.db-journal
+__pycache__/
+.venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
+node_modules/
+.next/
+out/
+frontend/test-results/
+frontend/playwright-report/
+backend/data/ceew_households.csv
+.DS_Store
