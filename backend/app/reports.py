@@ -21,8 +21,9 @@ def night_window(day: date) -> tuple[datetime, datetime]:
 
 
 def default_night(now: datetime) -> date:
-    """The most recent night that has finished (or is in progress after midnight)."""
-    return (to_ist(now) - timedelta(days=1)).date()
+    """The most recent night that has finished (a night ends at 12:00 IST)."""
+    local = to_ist(now)
+    return (local - timedelta(days=1 if local.hour >= 12 else 2)).date()
 
 
 def _sessions_in(db: Session, site_id: int, start: datetime, end: datetime):

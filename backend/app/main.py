@@ -17,7 +17,18 @@ from . import forecast as fc
 from .config import get_settings
 from .db import get_db, init_db, session_scope
 from .hub import hub
-from .models import Alert, AuditEntry, ChargeSession, Meter, Override, Plug, Site, User, utcnow
+from .models import (
+    Alert,
+    AuditEntry,
+    ChargeSession,
+    Meter,
+    Override,
+    Plug,
+    Site,
+    User,
+    must,  # noqa: I001
+    utcnow,
+)
 from .tariff import DEFAULT_TARIFF, rate_at
 from .vehicles import VEHICLES, energy_needed_wh
 
@@ -145,7 +156,7 @@ def health(db: Session = Depends(get_db)):
 @app.get("/api/config")
 def public_config():
     return {"dev_login": settings.dev_login, "google_client_id": settings.google_client_id,
-            "simulate": settings.simulate, "assistant": bool(settings.anthropic_api_key),
+            "simulate": settings.simulate, "assistant": bool(settings.llm_api_key),
             "telegram": bool(settings.telegram_bot_token), "mqtt": bool(settings.mqtt_host),
             "slot_minutes": settings.slot_minutes}
 
@@ -223,7 +234,7 @@ CONSENT_TEXT = ("I agree that VOLTIX records my charging sessions (times, energy
 @app.post("/api/me/consent")
 def consent(body: Consent, user: User = Depends(auth.current_user),
             db: Session = Depends(get_db)):
-    u = db.get(User, user.id)
+    u = must(db.get(User, user.id))
     if body.accepted:
         u.consent_at, u.consent_text = utcnow(), CONSENT_TEXT
     if body.telegram_chat_id is not None:
@@ -320,7 +331,7 @@ def resolve_alert(alert_id: int, db: Session = Depends(get_db), _: User = Depend
 @app.post("/api/sites/{site_id}/replan")
 def force_replan(site: Site = Depends(get_site), db: Session = Depends(get_db),
                  _: User = Depends(auth.operator)):
-    p = control.replan(db, site, "operator request")
+    p = must(control.replan(db, site, "operator request"))
     db.commit()
     return {"plan_id": p.id, "feasible": p.feasible}
 
@@ -385,7 +396,7 @@ def create_session(body: NewSession, user: User = Depends(auth.current_user),
         plugged_at=now, ready_by=ready, status="waiting", source=plug.source)
     db.add(s)
     db.flush()
-    site = db.get(Site, plug.site_id)
+    site = must(db.get(Site, plug.site_id))
     control.replan(db, site, "session added", now)
     control.tick(db, site, now)
     db.commit()
@@ -440,7 +451,7 @@ def accept_relaxation(session_id: int, body: ReadyBy, user: User = Depends(auth.
     for a in db.scalars(select(Alert).where(Alert.session_id == s.id,
                                             Alert.resolved.is_(False))):
         a.resolved = True
-    control.replan(db, db.get(Site, s.site_id), "ready-by changed")
+    control.replan(db, must(db.get(Site, s.site_id)), "ready-by changed")
     db.commit()
     return session_out(db, s)
 
@@ -719,3 +730,69 @@ def set_role(user_id: int, body: RoleIn, db: Session = Depends(get_db),
                                 "by": me_.email})
     db.commit()
     return user_out(u)
+
+
+# ------------------------------------------------------------------ assistant (read-only)
+
+class Ask(BaseModel):
+    question: str = Field(min_length=1, max_length=2000)
+    site_id: int
+    history: list[dict] = []
+
+
+def _assistant_or_404():
+    from . import assistant
+    if not assistant.enabled():
+        raise HTTPException(404, "The assistant is not configured on this server")
+    return assistant
+
+
+@app.post("/api/assistant/ask")
+def assistant_ask(body: Ask, db: Session = Depends(get_db), _: User = Depends(auth.operator)):
+    a = _assistant_or_404()
+    site = get_site(body.site_id, db)
+    history = [{"role": h["role"], "content": str(h["content"])} for h in body.history[-8:]
+               if h.get("role") in ("user", "assistant") and h.get("content")]
+    try:
+        return a.ask(db, site, body.question, history)
+    except Exception as e:
+        print(f"[assistant] {type(e).__name__}: {e}")
+        raise HTTPException(502, "The assistant could not answer just now. Try again.") from e
+
+
+_summaries: dict[tuple[int, str], str] = {}
+
+
+@app.post("/api/assistant/night-summary")
+def assistant_summary(site_id: int, night: date, db: Session = Depends(get_db),
+                      _: User = Depends(auth.operator)):
+    a = _assistant_or_404()
+    site = get_site(site_id, db)
+    key = (site.id, night.isoformat())
+    if key not in _summaries:
+        try:
+            _summaries[key] = a.night_summary(db, site, night)
+        except Exception as e:
+            print(f"[assistant] {type(e).__name__}: {e}")
+            raise HTTPException(502, "The summary could not be written just now.") from e
+    return {"summary": _summaries[key]}
+
+
+# ------------------------------------------------------------------ edge agent
+
+@app.get("/api/edge/{slug}/schedule")
+def edge_schedule(slug: str, key: str = "", db: Session = Depends(get_db)):
+    """What the edge agent caches so it can carry on if the cloud link drops."""
+    import hmac as _hmac
+    if not settings.edge_key or not _hmac.compare_digest(key, settings.edge_key):
+        raise HTTPException(403, "Bad edge key")
+    site = db.scalars(select(Site).where(Site.slug == slug)).first()
+    if not site:
+        raise HTTPException(404, "Site not found")
+    plugs = {p.id: p for p in db.scalars(select(Plug).where(Plug.site_id == site.id))}
+    return {"site": slug, "issued_at": iso(utcnow()),
+            "plugs": [p.topic for p in plugs.values() if p.kind == "tasmota"],
+            "sessions": [{"plug": plugs[s.plug_id].topic, "status": s.status,
+                          "start": iso(s.planned_start), "overridden": s.overridden}
+                         for s in control.active_sessions(db, site.id)
+                         if s.plug_id in plugs and plugs[s.plug_id].kind == "tasmota"]}

@@ -5,7 +5,7 @@ import { GridComponent, LegendComponent, MarkAreaComponent, MarkLineComponent, T
 import * as echarts from "echarts/core";
 import { SVGRenderer } from "echarts/renderers";
 import { useEffect, useRef } from "react";
-import { useIsDark } from "@/components/ui";
+import { useIsDark } from "@/lib/stored";
 
 echarts.use([LineChart, BarChart, CustomChart, GridComponent, TooltipComponent, LegendComponent, MarkLineComponent, MarkAreaComponent, SVGRenderer]);
 
@@ -37,7 +37,7 @@ export function baseOption(p: Palette) {
     animationDurationUpdate: 300,
     animationEasing: "cubicOut" as const,
     textStyle: { fontFamily: "IBM Plex Sans, sans-serif", color: p.ink },
-    grid: { left: 8, right: 12, top: 36, bottom: 8, containLabel: true },
+    grid: { left: 8, right: 12, top: 48, bottom: 8, containLabel: true },
     tooltip: {
       trigger: "axis" as const,
       backgroundColor: p.panel,

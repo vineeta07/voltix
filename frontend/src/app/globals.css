@@ -135,6 +135,7 @@ body {
   color: var(--muted);
 }
 .card {
+  min-width: 0; /* lets wide tables scroll inside the card instead of stretching the page */
   background: var(--panel);
   border: 1px solid var(--line);
   border-radius: 12px;

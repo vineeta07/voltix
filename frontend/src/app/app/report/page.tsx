@@ -17,6 +17,7 @@ export default function ReportPage() {
   const { site } = useSite();
   const cfg = useConfig();
   const [night, setNight] = useState<string | null>(null);
+  const [today] = useState(() => new Date(Date.now() + 330 * 60000).toISOString().slice(0, 10));
   const q = useQuery({ queryKey: ["report", site?.id, night], queryFn: () => api<Report>(`/sites/${site!.id}/report${night ? `?night=${night}` : ""}`), enabled: !!site, placeholderData: (p) => p });
   const summary = useQuery({
     queryKey: ["summary", site?.id, q.data?.night_of], enabled: !!site && !!q.data?.has_data && !!cfg.data?.assistant, staleTime: Infinity, retry: false,
@@ -26,7 +27,7 @@ export default function ReportPage() {
   if (q.isLoading || !site) return (<><PageHeader title="Night report" /><PageSkeleton /></>);
   if (q.error || !q.data) return (<><PageHeader title="Night report" /><Card><ErrorState error={q.error} retry={() => q.refetch()} /></Card></>);
   const r = q.data;
-  const today = new Date(Date.now() + 330 * 60000).toISOString().slice(0, 10);
+
 
   return (
     <>
@@ -95,7 +96,7 @@ export default function ReportPage() {
                 <thead><tr><th>#</th><th>Vehicle</th><th>Status</th><th>Charged</th><th>Ready by</th><th className="!text-right">Spare</th><th className="!text-right">Energy</th><th className="!text-right">Cost</th></tr></thead>
                 <tbody>{r.session_rows.map((s) => {
                   const spare = s.ended_at ? (Date.parse(s.ready_by) - Date.parse(s.ended_at)) / 60000 : null;
-                  return (<tr key={s.id}><td className="num text-muted">{s.id}</td><td className="capitalize">{s.vehicle_type.replace("e_", "e-")}</td><td><Pill tone={s.status}>{s.status}</Pill></td>
+                  return (<tr key={s.id}><td className="num text-muted">{s.id}</td><td>{({ e_scooter: "E-scooter", e_rickshaw: "E-rickshaw", e_car: "Electric car" } as Record<string, string>)[s.vehicle_type] ?? s.vehicle_type}</td><td><Pill tone={s.status}>{s.status}</Pill></td>
                     <td className="num whitespace-nowrap">{time(s.started_at)}–{time(s.ended_at)}</td><td className="num">{time(s.ready_by)}</td>
                     <td className={`num text-right whitespace-nowrap ${spare != null && spare < -5 ? "text-danger-ink" : ""}`}>{spare == null ? "–" : `${spare < 0 ? "−" : ""}${minutes(spare)}`}</td>
                     <td className="num text-right">{kwh(s.delivered_wh, 2)}</td><td className="num text-right">{rupees(s.cost_paise, 2)}</td></tr>);

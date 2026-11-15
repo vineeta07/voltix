@@ -28,6 +28,7 @@ from .models import (
     PlugReading,
     Site,
     User,
+    must,
     utcnow,
 )
 from .scheduler import Job, plan, smallest_relaxation
@@ -259,7 +260,7 @@ def finish_session(db: Session, s: ChargeSession, now: datetime, status: str = "
 def override(db: Session, s: ChargeSession, user: User, action: str, reason: str = "") -> None:
     """A user can always take control. Every override is logged."""
     now = utcnow()
-    plug = db.get(Plug, s.plug_id)
+    plug = must(db.get(Plug, s.plug_id))
     db.add(Override(session_id=s.id, user_id=user.id, action=action, reason=reason))
     audit.append(db, "override", {"session_id": s.id, "user_id": user.id, "action": action,
                                   "reason": reason})
@@ -268,8 +269,7 @@ def override(db: Session, s: ChargeSession, user: User, action: str, reason: str
         start_session(db, s, plug, "user override: charge now", now)
     elif action == "stop" and s.status in ACTIVE:
         finish_session(db, s, now, "cancelled")
-    site = db.get(Site, s.site_id)
-    replan(db, site, "override", now)
+    replan(db, must(db.get(Site, s.site_id)), "override", now)
 
 
 # ---------------------------------------------------------------- live loop

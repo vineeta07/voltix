@@ -6,6 +6,16 @@ import { STRATEGY_LABEL } from "@/lib/api";
 import { time } from "@/lib/format";
 import { baseOption, EChart, type Palette } from "./EChart";
 
+/** Insert a null point where readings stop for more than 20 min, so lines break instead of bridging the gap. */
+function gapped<T extends { ts: string }>(rows: T[], pick: (r: T) => number): [number, number | null][] {
+  const out: [number, number | null][] = [];
+  rows.forEach((r, i) => {
+    const t = Date.parse(r.ts);
+    if (i && t - Date.parse(rows[i - 1].ts) > 20 * 60000) out.push([t - 1, null]);
+    out.push([t, pick(r)]);
+  });
+  return out;
+}
 const kwFmt = (v: number) => `${(v / 1000).toFixed(1)} kW`;
 const istTime = (v: number) => time(new Date(v).toISOString());
 type Row = { seriesName: string; value: [number, number] | number; marker: string; axisValueLabel?: string; name?: string };
@@ -38,9 +48,16 @@ function limitLine(p: Palette, y: number, name = "Site limit") {
 export function LoadChart({ live, height = 340 }: { live: Live; height?: number }) {
   const build = useCallback((p: Palette) => {
     const b = baseOption(p);
-    const hist = live.history.map((h) => [Date.parse(h.ts), h.load_w]);
-    const ev = live.history.map((h) => [Date.parse(h.ts), h.ev_w]);
-    const exp = live.history.map((h) => [Date.parse(h.ts), h.export_w]);
+    // break the line where the meter was silent, rather than drawing across the gap
+    const rows: { t: number; load_w: number | null; ev_w: number | null; export_w: number | null }[] = [];
+    live.history.forEach((h, i) => {
+      const t = Date.parse(h.ts);
+      if (i && t - Date.parse(live.history[i - 1].ts) > 15 * 60000) rows.push({ t: t - 1, load_w: null, ev_w: null, export_w: null });
+      rows.push({ t, ...h });
+    });
+    const hist = rows.map((h) => [h.t, h.load_w]);
+    const ev = rows.map((h) => [h.t, h.ev_w]);
+    const exp = rows.map((h) => [h.t, h.export_w]);
     const evPlan = live.plan?.ev_w ?? [];
     const slot0 = live.plan ? Date.parse(live.plan.slot_start) : 0;
     const fc = live.forecast.points.slice(0, 48).map((f) => {
@@ -159,8 +176,8 @@ export function NightChart({ report, height = 320 }: { report: Report; height?: 
       tooltip: { ...b.tooltip, formatter: tip(kwFmt, timeHead) },
       series: [
         { name: "ToD timer (modelled)", type: "line", step: "end", symbol: "none", lineStyle: { color: p.greyDark, width: 1.5 }, itemStyle: { color: p.greyDark }, data: tod },
-        { name: "EV charging", type: "line", step: "end", symbol: "none", lineStyle: { color: p.amber, width: 1.25 }, itemStyle: { color: p.amber }, data: report.series.map((s) => [Date.parse(s.ts), s.ev_w]) },
-        { name: "Site load", type: "line", symbol: "none", lineStyle: { color: p.teal, width: 2 }, itemStyle: { color: p.teal }, areaStyle: { color: p.teal, opacity: 0.1 }, data: report.series.map((s) => [Date.parse(s.ts), s.load_w]), z: 5, markLine: limitLine(p, report.limit_w) },
+        { name: "EV charging", type: "line", step: "end", symbol: "none", lineStyle: { color: p.amber, width: 1.25 }, itemStyle: { color: p.amber }, data: gapped(report.series, (s) => s.ev_w) },
+        { name: "Site load", type: "line", symbol: "none", lineStyle: { color: p.teal, width: 2 }, itemStyle: { color: p.teal }, areaStyle: { color: p.teal, opacity: 0.1 }, data: gapped(report.series, (s) => s.load_w), z: 5, markLine: limitLine(p, report.limit_w) },
       ],
     };
   }, [report]);

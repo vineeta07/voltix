@@ -3,7 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import clsx from "clsx";
 import { Plus, Radio, Trash2, Users } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Banner, Button, Card, CardHead, DataLabel, EmptyState, ErrorState, Field, PageHeader, Pill, Skeleton } from "@/components/ui";
 import { api, type Plug, type Role, type Site } from "@/lib/api";
 import { ago, dateTime } from "@/lib/format";
@@ -24,7 +24,7 @@ export default function AdminPage() {
       </div>
       {sites.isLoading ? <Skeleton className="h-64 !rounded-xl" /> : sites.error ? <Card><ErrorState error={sites.error} retry={() => sites.refetch()} /></Card> : (
         <div key={tab} className="rise">
-          {tab === "Site & limits" && <SiteTab site={site} />}
+          {tab === "Site & limits" && <SiteTab key={site?.id ?? 0} site={site} />}
           {tab === "Plugs & meters" && <DevicesTab site={site} />}
           {tab === "Tariff" && (site ? <TariffTab site={site} /> : <NoSite />)}
           {tab === "Transformer" && (site ? <TransformerTab site={site} /> : <NoSite />)}
@@ -47,8 +47,9 @@ function Saved({ m }: { m: { isSuccess: boolean; error: unknown } }) {
 }
 
 function SiteTab({ site }: { site?: Site }) {
-  const [f, setF] = useState({ slug: "", name: "", kind: "society", limit_kva: "20", margin_kva: "1", pf: "0.95" });
-  useEffect(() => { if (site) setF({ slug: site.slug, name: site.name, kind: site.kind, limit_kva: String(site.limit_va / 1000), margin_kva: String(site.safety_margin_va / 1000), pf: String(site.power_factor) }); }, [site]);
+  const [f, setF] = useState(() => site
+    ? { slug: site.slug, name: site.name, kind: site.kind, limit_kva: String(site.limit_va / 1000), margin_kva: String(site.safety_margin_va / 1000), pf: String(site.power_factor) }
+    : { slug: "", name: "", kind: "society", limit_kva: "20", margin_kva: "1", pf: "0.95" });
   const save = useSave(site ? `/admin/sites/${site.id}` : "/admin/sites", site ? "PATCH" : "POST");
   const set = (k: keyof typeof f) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setF({ ...f, [k]: e.target.value });
   const usable = (+f.limit_kva - +f.margin_kva) * +f.pf;

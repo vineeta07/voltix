@@ -1,0 +1,43 @@
+services:
+  db:
+    image: timescale/timescaledb:latest-pg16
+    environment:
+      POSTGRES_USER: voltix
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change-me}
+      POSTGRES_DB: voltix
+    volumes: [dbdata:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U voltix"]
+      interval: 5s
+      retries: 20
+
+  mqtt:
+    image: eclipse-mosquitto:2
+    volumes:
+      - ./infra/mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
+      - ./infra/mosquitto/entrypoint.sh:/entrypoint.sh:ro
+      - mqttdata:/mosquitto/data
+    environment:
+      MQTT_USERNAME: ${VOLTIX_MQTT_USERNAME:-voltix}
+      MQTT_PASSWORD: ${VOLTIX_MQTT_PASSWORD:-change-me}
+    entrypoint: ["/bin/sh", "/entrypoint.sh"]
+    ports: ["1883:1883", "8883:8883"]
+
+  api:
+    build: ./backend
+    env_file: .env
+    depends_on:
+      db: { condition: service_healthy }
+      mqtt: { condition: service_started }
+    ports: ["8000:8000", "9000:9000"]
+
+  web:
+    build: ./frontend
+    environment:
+      BACKEND_URL: http://api:8000
+    depends_on: [api]
+    ports: ["3000:3000"]
+
+volumes:
+  dbdata:
+  mqttdata:

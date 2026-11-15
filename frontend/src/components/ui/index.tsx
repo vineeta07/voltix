@@ -4,7 +4,8 @@ import clsx from "clsx";
 import { AlertTriangle, Moon, Sun, type LucideIcon } from "lucide-react";
 import { animate, motion, useInView, useReducedMotion } from "motion/react";
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
+import { useIsDark } from "@/lib/stored";
 import type { Source } from "@/lib/api";
 
 /* ---------- Logo (the supplied brand files, never recoloured) ---------- */
@@ -206,13 +207,11 @@ export function Reveal({ children, delay = 0, className, y = 14 }: { children: R
 
 /* ---------- Theme toggle ---------- */
 export function ThemeToggle({ className }: { className?: string }) {
-  const [dark, setDark] = useState(false);
-  useEffect(() => setDark(document.documentElement.classList.contains("dark")), []);
+  const dark = useIsDark();
   const flip = () => {
     const next = !dark;
     document.documentElement.classList.toggle("dark", next);
     try { localStorage.setItem("voltix.theme", next ? "dark" : "light"); } catch {}
-    setDark(next);
     window.dispatchEvent(new Event("voltix-theme"));
   };
   return (
@@ -222,17 +221,6 @@ export function ThemeToggle({ className }: { className?: string }) {
     </button>
   );
 }
-export function useIsDark() {
-  const [dark, setDark] = useState(false);
-  useEffect(() => {
-    const read = () => setDark(document.documentElement.classList.contains("dark"));
-    read();
-    window.addEventListener("voltix-theme", read);
-    return () => window.removeEventListener("voltix-theme", read);
-  }, []);
-  return dark;
-}
-
 /* ---------- Page header, pills, fields ---------- */
 export function PageHeader({ title, lead, right }: { title: string; lead?: string; right?: React.ReactNode }) {
   return (

@@ -144,7 +144,8 @@ def run_level(adoption_pct: float, cfg: TwinConfig, building_w: list[float] | No
     price = _price(tariff, n)
     amb = ambient(cfg, n)
     tp = thermal.ThermalParams.from_config(cfg.thermal)
-    out = {"adoption_pct": adoption_pct, "evs": n_ev, "strategies": {}}
+    strategies_out: dict[str, dict] = {}
+    out: dict = {"adoption_pct": adoption_pct, "evs": n_ev, "strategies": strategies_out}
     if detail:
         out |= {"base_w": base, "household_w": [int(x) for x in hh],
                 "building_w": [int(x) for x in bld], "ambient_c": [round(a, 1) for a in amb],
@@ -158,7 +159,7 @@ def run_level(adoption_pct: float, cfg: TwinConfig, building_w: list[float] | No
         K = [t / rated_w for t in total]
         th = thermal.simulate(K, amb, tp, dt_min=SLOT_MIN)
         met = sum(1 for j in r.jobs.values() if j.late_slots == 0 and not j.impossible)
-        m = {
+        m: dict = {
             "peak_pct": round(max(K) * 100, 1),
             "minutes_over": sum(1 for k in K if k > 1.0) * SLOT_MIN,
             "max_hot_spot_c": round(th.max_hot_spot, 1),

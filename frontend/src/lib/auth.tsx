@@ -21,6 +21,8 @@ export function useSignOut() {
   return () => {
     token.clear();
     qc.clear();
-    window.location.href = "/";
+    // Full reload on purpose: it drops every cached query.
+    // eslint-disable-next-line @next/next/no-location-assign-relative-destination
+    window.location.assign("/");
   };
 }

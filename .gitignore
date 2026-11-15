@@ -15,3 +15,4 @@ frontend/test-results/
 frontend/playwright-report/
 backend/data/ceew_households.csv
 .DS_Store
+frontend/test-results/

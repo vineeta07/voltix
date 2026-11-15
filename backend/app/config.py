@@ -33,11 +33,12 @@ class Settings(BaseSettings):
 
     # Integrations (all optional; features hide themselves when unset)
     telegram_bot_token: str = ""
-    anthropic_api_key: str = ""
-    assistant_model: str = "claude-opus-4-8"
+    llm_api_key: str = ""
+    llm_model: str = "claude-opus-5-5"
     open_meteo_enabled: bool = True
 
     ocpp_port: int = 0  # 0 disables the OCPP 1.6J central system
+    edge_key: str = ""  # shared secret for the edge agent; empty disables its endpoint
 
     slot_minutes: int = 15
     horizon_slots: int = 96

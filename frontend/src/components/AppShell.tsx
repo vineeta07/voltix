@@ -13,6 +13,7 @@ import { Banner, Logo, Skeleton, ThemeToggle } from "@/components/ui";
 import type { Role } from "@/lib/api";
 import { useConfig, useMe, useSignOut } from "@/lib/auth";
 import { useSite } from "@/lib/site";
+import { setStored } from "@/lib/stored";
 
 type Item = { href: string; label: string; icon: LucideIcon; roles: Role[]; group: string; mobile?: boolean; needs?: "assistant" };
 const NAV: Item[] = [
@@ -41,7 +42,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (!me.isLoading && !me.data) router.replace(`/signin?next=${encodeURIComponent(path)}`);
   }, [me.isLoading, me.data, router, path]);
-  useEffect(() => setMenu(false), [path]);
 
   if (!me.data) {
     return (
@@ -66,7 +66,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           {sites.length > 1 ? (
             <label className="relative block">
               <select aria-label="Site" className="w-full appearance-none bg-transparent pr-5 text-sm font-medium" value={site?.id}
-                onChange={(e) => { localStorage.setItem("voltix.site", e.target.value); window.location.reload(); }}>
+                onChange={(e) => setStored("voltix.site", e.target.value)}>
                 {sites.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
               </select>
               <ChevronDown size={14} className="pointer-events-none absolute top-1 right-0 text-muted" />
@@ -122,7 +122,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               <div className="px-3 py-2"><div className="truncate text-sm font-medium">{me.data.name || me.data.email}</div><div className="text-xs text-muted capitalize">{role} · {site?.name}</div></div>
               <div className="rule my-1" />
               {items.filter((i) => !mobile.includes(i)).map((i) => (
-                <Link key={i.href} href={i.href} className="flex h-11 items-center gap-3 rounded-lg px-3 text-sm hover:bg-teal-wash"><i.icon size={17} strokeWidth={1.75} />{i.label}</Link>
+                <Link key={i.href} href={i.href} onClick={() => setMenu(false)} className="flex h-11 items-center gap-3 rounded-lg px-3 text-sm hover:bg-teal-wash"><i.icon size={17} strokeWidth={1.75} />{i.label}</Link>
               ))}
               <button onClick={signOut} className="flex h-11 w-full items-center gap-3 rounded-lg px-3 text-sm hover:bg-teal-wash"><LogOut size={17} strokeWidth={1.75} />Sign out</button>
             </div>

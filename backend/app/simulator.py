@@ -177,7 +177,7 @@ def seed(db: Session, days: int = 9) -> None:
         for p in plugs:
             power = 0.0
             for s in by_plug[p.id]:
-                if s.started_at <= ts < s.ended_at:
+                if s.started_at and s.ended_at and s.started_at <= ts < s.ended_at:
                     power = s.power_w * hist_rng.uniform(0.97, 1.03)
                     active.append((s, power))
             totals[p.id] += power / 60

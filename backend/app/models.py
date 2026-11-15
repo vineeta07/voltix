@@ -12,6 +12,13 @@ def utcnow() -> datetime:
     return datetime.now(UTC).replace(tzinfo=None)
 
 
+def must[T](obj: T | None) -> T:
+    """Narrow an optional row that the caller knows exists."""
+    if obj is None:
+        raise LookupError("row not found")
+    return obj
+
+
 class Site(Base):
     __tablename__ = "sites"
     id: Mapped[int] = mapped_column(primary_key=True)

@@ -6,7 +6,7 @@ import {
   Activity, ArrowRight, BellRing, Building2, CloudOff, FileCheck2, Hand, Languages, LineChart, Network,
   ShieldCheck, Sun, Thermometer, TimerReset, Truck, Zap,
 } from "lucide-react";
-import { motion } from "motion/react";
+import { motion, useReducedMotion } from "motion/react";
 import { useEffect, useRef, useState } from "react";
 import { StrategyDayChart } from "@/components/charts";
 import { SignalBoard, type BoardMode } from "@/components/landing/SignalBoard";
@@ -23,13 +23,16 @@ const STORY: { mode: BoardMode; k: string; h: string; b: string }[] = [
 export default function Landing() {
   const impact = useQuery({ queryKey: ["impact"], queryFn: () => api<Impact>("/impact"), refetchInterval: 60_000 });
   const snap = useQuery({ queryKey: ["snapback"], queryFn: () => api<TwinLevel>("/snapback"), staleTime: Infinity });
-  const [hero, setHero] = useState<BoardMode>("tod");
+  const reduce = useReducedMotion();
+  const [picked, setHero] = useState<BoardMode>("tod");
   const [auto, setAuto] = useState(true);
+  // With reduced motion there is no auto-play: show the VOLTIX state until the visitor picks one.
+  const hero: BoardMode = auto && reduce ? "voltix" : picked;
   useEffect(() => {
-    if (!auto || window.matchMedia("(prefers-reduced-motion: reduce)").matches) { setHero((m) => (auto ? "voltix" : m)); return; }
+    if (!auto || reduce) return;
     const id = setInterval(() => setHero((m) => (m === "tod" ? "voltix" : "tod")), 3800);
     return () => clearInterval(id);
-  }, [auto]);
+  }, [auto, reduce]);
 
   const [step, setStep] = useState(0);
   const refs = useRef<(HTMLDivElement | null)[]>([]);

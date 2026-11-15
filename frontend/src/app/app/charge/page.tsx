@@ -4,13 +4,14 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import clsx from "clsx";
 import { AlertTriangle, Bike, Car, Check, Clock, PlugZap, Star, Sun, Truck, Zap } from "lucide-react";
 import { motion } from "motion/react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Banner, Button, Card, DataLabel, EmptyState, ErrorState, Skeleton } from "@/components/ui";
 import { api, type Me, type Plug, type Session, type Vehicles } from "@/lib/api";
 import { useMe } from "@/lib/auth";
 import { kwh, nextIst, rupees, time } from "@/lib/format";
 import { useLang, type Strings } from "@/lib/i18n";
 import { useSite } from "@/lib/site";
+import { setStored, useStored } from "@/lib/stored";
 import { useLiveSocket } from "@/lib/useLive";
 
 const ICON: Record<string, typeof Bike> = { e_scooter: Bike, e_rickshaw: Truck, e_car: Car };
@@ -24,9 +25,10 @@ export default function ChargePage() {
   const mine = useQuery({ queryKey: ["mine"], queryFn: () => api<Session[]>("/sessions/mine"), refetchInterval: 15_000 });
   useLiveSocket(site?.id, ["mine", "plugs"]);
   const [fresh, setFresh] = useState(false);
+  const [openedAt] = useState(() => Date.now());
   const current = mine.data?.find((s) => ["waiting", "charging", "paused"].includes(s.status));
   const last = mine.data?.[0];
-  const showDone = !fresh && !current && last && last.status === "done" && Date.now() - Date.parse(last.ended_at ?? "") < 6 * 3600000;
+  const showDone = !fresh && !current && last && last.status === "done" && openedAt - Date.parse(last.ended_at ?? "") < 6 * 3600000;
   const consent = useMutation({ mutationFn: () => api<Me>("/me/consent", { method: "POST", body: { accepted: true } }), onSuccess: () => qc.invalidateQueries({ queryKey: ["me"] }) });
 
   return (
@@ -58,17 +60,21 @@ function PlugIn({ t, lang, siteId, onDone }: { t: Strings; lang: string; siteId?
   const qc = useQueryClient();
   const vehicles = useQuery({ queryKey: ["vehicles"], queryFn: () => api<Vehicles>("/vehicles"), staleTime: Infinity });
   const plugs = useQuery({ queryKey: ["plugs", siteId], queryFn: () => api<Plug[]>(`/sites/${siteId}/plugs`), enabled: !!siteId, refetchInterval: 15_000 });
-  const [vehicle, setVehicle] = useState("e_scooter");
+  const savedVehicle = useStored("voltix.vehicle", "e_scooter");
+  const savedReady = useStored("voltix.ready", "07:00");
+  const [vehiclePick, setVehicle] = useState<string | null>(null);
+  const [readyPick, setReady] = useState<string | null>(null);
+  const vehicle = vehiclePick ?? savedVehicle;
+  const ready = readyPick ?? savedReady;
+  const [openedAt] = useState(() => Date.now());
   const [plugId, setPlugId] = useState<number | null>(null);
   const [battery, setBattery] = useState(30);
-  const [ready, setReady] = useState("07:00");
-  useEffect(() => { const v = localStorage.getItem("voltix.vehicle"); if (v) setVehicle(v); const r = localStorage.getItem("voltix.ready"); if (r) setReady(r); }, []);
   const create = useMutation({
     mutationFn: () => api<Session>("/sessions", { method: "POST", body: { plug_id: plugId, vehicle_type: vehicle, battery_pct: battery, ready_by: nextIst(ready) } }),
-    onSuccess: () => { localStorage.setItem("voltix.vehicle", vehicle); localStorage.setItem("voltix.ready", ready); onDone(); qc.invalidateQueries({ queryKey: ["mine"] }); },
+    onError: () => qc.invalidateQueries({ queryKey: ["plugs"] }), // someone may have just taken that plug
+    onSuccess: () => { setStored("voltix.vehicle", vehicle); setStored("voltix.ready", ready); onDone(); qc.invalidateQueries({ queryKey: ["mine"] }); },
   });
-  const readyIso = nextIst(ready);
-  const isTomorrow = new Date(Date.parse(readyIso) + 330 * 60000).getUTCDate() !== new Date(Date.now() + 330 * 60000).getUTCDate();
+  const isTomorrow = new Date(Date.parse(nextIst(ready, new Date(openedAt))) + 330 * 60000).getUTCDate() !== new Date(openedAt + 330 * 60000).getUTCDate();
 
   if (plugs.data && !plugs.data.length) return <Card><EmptyState icon={PlugZap} title={t.noPlugs} body="" /></Card>;
   return (

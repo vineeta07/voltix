@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { setStored, useStored } from "./stored";
 
 // Driver-facing strings only. Operator screens stay in English.
 const STR = {
@@ -36,14 +36,7 @@ export type Lang = keyof typeof STR;
 export type Strings = { [K in keyof (typeof STR)["en"]]: string };
 
 export function useLang() {
-  const [lang, setLangState] = useState<Lang>("en");
-  useEffect(() => {
-    const saved = localStorage.getItem("voltix.lang");
-    if (saved === "hi" || saved === "en") setLangState(saved);
-  }, []);
-  const setLang = (l: Lang) => {
-    localStorage.setItem("voltix.lang", l);
-    setLangState(l);
-  };
+  const lang: Lang = useStored("voltix.lang", "en") === "hi" ? "hi" : "en";
+  const setLang = (l: Lang) => setStored("voltix.lang", l);
   return { lang, setLang, t: STR[lang] as Strings };
 }
