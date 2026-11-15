@@ -16,6 +16,14 @@ async function check(page: Page, name: string, errors: string[]) {
   await page.waitForTimeout(700);
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
   expect(overflow, "no horizontal scroll").toBeLessThanOrEqual(0);
+  // scroll through the page so sections that reveal on scroll are in their final state
+  const height = await page.evaluate(() => document.documentElement.scrollHeight);
+  for (let y = 0; y < height; y += 500) {
+    await page.evaluate((top) => window.scrollTo(0, top), y);
+    await page.waitForTimeout(60);
+  }
+  await page.evaluate(() => window.scrollTo(0, 0));
+  await page.waitForTimeout(500);
   await page.screenshot({ path: `../docs/screenshots/${name}-${project}.png`, fullPage: true });
   expect(errors, "no console errors").toEqual([]);
 }
@@ -92,12 +100,15 @@ test("user plugs in, sees the start time and progress, and overrides", async ({ 
   await expect(page.getByRole("button", { name: "I've plugged in" })).toBeVisible();
   await check(page, "charge-form", errors);
 
-  await page.getByRole("button", { name: /E-rickshaw/ }).click();
+  await page.getByRole("button", { name: /E-scooter/ }).click();
   await page.locator("fieldset").nth(1).getByRole("button", { disabled: false }).first().click();
+  // a ready-by time eight hours from now (IST), so the charge always fits whatever the clock says
+  const ist = new Date(Date.now() + (330 + 8 * 60) * 60000);
+  await page.locator('input[type="time"]').fill(`${String(ist.getUTCHours()).padStart(2, "0")}:${String(ist.getUTCMinutes()).padStart(2, "0")}`);
   await page.getByRole("button", { name: "I've plugged in" }).click();
 
   await expect(page.getByText(/Starts at|Should finish by/)).toBeVisible();
-  await expect(page.getByText("ready by")).toBeVisible();
+  await expect(page.getByText(/^ready by/)).toBeVisible();
   await expect(page.getByRole("progressbar")).toBeVisible();
   await check(page, "charge-scheduled", errors);
 

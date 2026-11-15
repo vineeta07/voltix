@@ -55,11 +55,11 @@ function SignIn() {
       </aside>
       <main className="flex flex-col">
         <div className="flex h-16 items-center justify-between px-4 sm:px-8"><Link href="/" className="lg:invisible"><Logo height={26} /></Link><ThemeToggle /></div>
-        <div className="flex flex-1 items-center justify-center px-4 pb-16 sm:px-8">
+        <div className="flex flex-1 items-start justify-center px-4 pt-[8vh] pb-16 sm:px-8">
           <div className="rise w-full max-w-sm">
             <h1 className="font-display text-[40px] leading-tight font-medium">Sign in</h1>
             <p className="mt-2 text-muted">Use your Google account. Your role decides what you see.</p>
-            {cfg.isLoading ? <Skeleton className="mt-8 h-12" /> : cfg.error ? <div className="mt-8"><Banner tone="danger">{(cfg.error as Error).message}</Banner></div> : (
+            {cfg.isLoading ? <Skeleton className="mt-8 h-[340px] !rounded-xl" /> : cfg.error ? <div className="mt-8"><Banner tone="danger">{(cfg.error as Error).message}</Banner></div> : (
               <>
                 {gid ? (<><Script src="https://accounts.google.com/gsi/client" strategy="afterInteractive" onLoad={initGoogle} /><div ref={gbtn} className="mt-8 min-h-11" /></>)
                   : !cfg.data?.dev_login && <div className="mt-8"><Banner tone="amber">Google sign-in is not configured on this server yet. Set VOLTIX_GOOGLE_CLIENT_ID to enable it.</Banner></div>}

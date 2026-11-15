@@ -8,7 +8,7 @@ paired, and it is not part of the control logic.
 
 import math
 import random
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -201,4 +201,22 @@ def seed(db: Session, days: int = 9) -> None:
         p.total_wh, p.last_seen = totals[p.id], now
     audit.append(db, "config", {"event": "demo site seeded", "site": site.slug,
                                 "note": "all history is SIMULATED"})
+
+    # Four vehicles plugged in right now, so the live view has a schedule to show.
+    # They go through the real scheduler on the first control pass.
+    local = to_ist(now)
+    for i, (pi, kind, hhmm, pct) in enumerate([(0, "e_scooter", (6, 30), 35),
+                                                (2, "e_rickshaw", (7, 0), 25),
+                                                (3, "e_rickshaw", (7, 30), 40),
+                                                (1, "e_scooter", (8, 0), 20)]):
+        ready_local = local.replace(hour=hhmm[0], minute=hhmm[1], second=0, microsecond=0)
+        while ready_local < local + timedelta(hours=7):
+            ready_local += timedelta(days=1)
+        ready = ready_local.astimezone(UTC).replace(tzinfo=None)
+        db.add(ChargeSession(
+            site_id=site.id, plug_id=plugs[pi].id, user_id=users[i].id, vehicle_type=kind,
+            battery_pct=pct, energy_needed_wh=energy_needed_wh(kind, pct),
+            power_w=plugs[pi].max_w, interruptible=False,
+            plugged_at=now - timedelta(minutes=20 + 15 * i), ready_by=ready, status="waiting",
+            source="simulated"))
     _ = VEHICLES

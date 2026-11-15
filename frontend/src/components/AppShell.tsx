@@ -151,7 +151,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             className={clsx("relative flex h-16 flex-col items-center justify-center gap-1 text-[11px]", active(i.href) ? "font-medium text-teal-ink" : "text-muted")}>
             {active(i.href) && <motion.span layoutId="tab-active" className="absolute top-0 h-[3px] w-10 rounded-b-full bg-teal" transition={{ duration: 0.2 }} />}
             <i.icon size={20} strokeWidth={1.75} aria-hidden />
-            <span className="max-w-full truncate px-1">{i.label.replace("Neighbourhood ", "").replace("My ", "")}</span>
+            <span className="max-w-full truncate px-1">{{ "My charging": "Charge", "Neighbourhood twin": "Twin", "Night report": "Report", "User guide": "Guide" }[i.label] ?? i.label}</span>
           </Link>
         ))}
       </nav>

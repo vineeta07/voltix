@@ -16,7 +16,7 @@ function Steps({ items }: { items: [string, string][] }) {
         <li key={h} className="relative grid grid-cols-[40px_1fr] gap-x-3 pb-6 last:pb-0">
           {i < items.length - 1 && <span className="absolute top-9 bottom-0 left-[19px] w-px bg-line-strong" />}
           <span className="num flex h-10 w-10 items-center justify-center rounded-full border border-line-strong bg-panel text-sm">{i + 1}</span>
-          <div className="pt-1.5"><h4 className="font-semibold">{h}</h4><p className="mt-1 text-sm leading-relaxed text-muted">{b}</p></div>
+          <div className="pt-1.5"><h3 className="font-semibold">{h}</h3><p className="mt-1 text-sm leading-relaxed text-muted">{b}</p></div>
         </li>
       ))}
     </ol>

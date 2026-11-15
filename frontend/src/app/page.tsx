@@ -6,9 +6,10 @@ import {
   Activity, ArrowRight, BellRing, Building2, CloudOff, FileCheck2, Hand, Languages, LineChart, Network,
   ShieldCheck, Sun, Thermometer, TimerReset, Truck, Zap,
 } from "lucide-react";
-import { motion, useReducedMotion } from "motion/react";
+import { useReducedMotion } from "motion/react";
 import { useEffect, useRef, useState } from "react";
 import { StrategyDayChart } from "@/components/charts";
+import { PilotPhotos } from "@/components/landing/PilotPhotos";
 import { SignalBoard, type BoardMode } from "@/components/landing/SignalBoard";
 import { PublicFooter, PublicNav } from "@/components/PublicShell";
 import { Button, CountUp, DataLabel, Reveal, Skeleton } from "@/components/ui";
@@ -52,20 +53,19 @@ export default function Landing() {
         {/* ---------------- hero ---------------- */}
         <section className="mx-auto grid max-w-[1280px] items-center gap-10 px-4 pt-10 pb-14 sm:px-6 lg:grid-cols-[1.05fr_1fr] lg:gap-14 lg:px-8 lg:pt-20 lg:pb-24">
           <div>
-            <motion.p initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }} className="eyebrow">The traffic signal for EV charging</motion.p>
-            <motion.h1 initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.05 }}
-              className="font-display mt-4 text-[40px] leading-[1.05] font-medium sm:text-[56px] lg:text-[68px]">
+            <p className="eyebrow settle">The traffic signal for EV charging</p>
+            <h1 className="settle font-display mt-4 text-[40px] leading-[1.05] font-medium sm:text-[56px] lg:text-[68px]">
               Tariffs tell every EV when power is cheap. Nobody tells them <em className="text-teal-ink">not all at once.</em>
-            </motion.h1>
-            <motion.p initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.12 }} className="mt-6 max-w-xl text-lg leading-relaxed text-muted">
+            </h1>
+            <p style={{ animationDelay: "0.06s" }} className="settle mt-6 max-w-xl text-lg leading-relaxed text-muted">
               VOLTIX gives each vehicle on a shared transformer its own start time. Everyone keeps the cheap rate and their ready-by time, and the site never goes over its real capacity.
-            </motion.p>
-            <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.18 }} className="mt-8 flex flex-wrap gap-3">
+            </p>
+            <div style={{ animationDelay: "0.12s" }} className="settle mt-8 flex flex-wrap gap-3">
               <Button href="/signin" size="lg">Open VOLTIX<ArrowRight size={18} /></Button>
               <Button href="#what" size="lg" variant="secondary">See how it works</Button>
-            </motion.div>
+            </div>
           </div>
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.15 }}>
+          <div style={{ animationDelay: "0.1s" }} className="settle">
             <SignalBoard mode={hero} />
             <div className="mt-3 flex items-center justify-between gap-3">
               <div className="flex rounded-lg border border-line-strong p-0.5" role="group" aria-label="Compare">
@@ -73,7 +73,7 @@ export default function Landing() {
               </div>
               <span className="text-xs text-muted">Illustration of one building. Same six vehicles, same tariff.</span>
             </div>
-          </motion.div>
+          </div>
         </section>
 
         {/* ---------------- live numbers ---------------- */}
@@ -95,6 +95,8 @@ export default function Landing() {
           </div>
         </section>
 
+        <PilotPhotos />
+
         {/* ---------------- scroll story ---------------- */}
         <section id="what" className="mx-auto max-w-[1280px] scroll-mt-16 px-4 pt-16 sm:px-6 lg:px-8 lg:pt-28">
           <Reveal><p className="eyebrow">01 — What it is</p><h2 className="font-display mt-3 max-w-2xl text-[32px] leading-[1.1] font-medium sm:text-[44px]">Scroll through one night on one building.</h2></Reveal>
@@ -106,7 +108,7 @@ export default function Landing() {
             <div className="lg:order-1">
               {STORY.map((s, n) => (
                 <div key={s.k} data-i={n} ref={(el) => { refs.current[n] = el; }} className="flex min-h-[58vh] flex-col justify-center py-10 lg:min-h-[78vh]">
-                  <div className={clsx("transition-opacity duration-300", step === n ? "opacity-100" : "opacity-35")}>
+                  <div className={clsx("transition-opacity duration-300", step === n ? "opacity-100" : "opacity-60")}>
                     <p className="num text-sm text-teal-ink">{String(n + 1).padStart(2, "0")} · {s.k}</p>
                     <h3 className="font-display mt-2 text-[28px] leading-[1.15] font-medium sm:text-[36px]">{s.h}</h3>
                     <p className="mt-4 max-w-md leading-relaxed text-muted">{s.b}</p>

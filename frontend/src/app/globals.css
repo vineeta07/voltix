@@ -170,6 +170,23 @@ body {
 .rise {
   animation: rise 0.2s ease-out both;
 }
+/* hero entrance: transform only, so the headline paints immediately */
+@keyframes settle {
+  from { transform: translateY(12px); }
+  to { transform: none; }
+}
+.settle {
+  animation: settle 0.5s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+.reveal-wait {
+  opacity: 0;
+  transform: translateY(14px);
+  transition: opacity 0.45s cubic-bezier(0.2, 0.7, 0.2, 1), transform 0.45s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.reveal-wait.reveal-in {
+  opacity: 1;
+  transform: none;
+}
 @keyframes draw {
   to { stroke-dashoffset: 0; }
 }

@@ -21,7 +21,7 @@ export function SessionTimeline({ sessions, now, plugNames }: { sessions: Sessio
   const span = max - min;
   const x = (t: number) => `${(((t - min) / span) * 100).toFixed(3)}%`;
   const w = (a: number, b: number) => `${((Math.max(0, b - a) / span) * 100).toFixed(3)}%`;
-  const step = span / hour > 16 ? 4 : span / hour > 8 ? 2 : 1;
+  const step = Math.max(1, Math.ceil(span / hour / 8)); // at most about eight labels
   const ticks: number[] = [];
   for (let t = min; t <= max; t += hour * step) ticks.push(t);
 

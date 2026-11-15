@@ -66,7 +66,7 @@ export default function LivePage() {
       <div className="mt-4 grid gap-4 xl:grid-cols-[1fr_360px]">
         <Card>
           <CardHead title="Sessions: planned vs actual" hint={d.plan ? `Plan #${d.plan.id} · ${d.plan.reason} · ${time(d.plan.created_at)} IST` : "No plan yet"} />
-          <div className="pt-4"><SessionTimeline sessions={d.sessions} now={d.now} plugNames={plugNames} /></div>
+          <div className="pt-4"><SessionTimeline sessions={d.sessions.filter((s) => s.status !== "cancelled")} now={d.now} plugNames={plugNames} /></div>
         </Card>
 
         <div className="grid content-start gap-4">

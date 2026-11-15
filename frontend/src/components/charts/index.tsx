@@ -4,7 +4,18 @@ import { useCallback } from "react";
 import type { Live, Report, StrategyKey, Sweep, TwinLevel } from "@/lib/api";
 import { STRATEGY_LABEL } from "@/lib/api";
 import { time } from "@/lib/format";
-import { baseOption, EChart, type Palette } from "./EChart";
+import dynamic from "next/dynamic";
+import { baseOption, type Palette } from "./base";
+
+// The chart library is loaded only when a chart is on screen, never in the first bundle.
+const LazyEChart = dynamic(() => import("./EChart").then((m) => m.EChart), {
+  ssr: false,
+  loading: () => <div className="skeleton h-full w-full" aria-hidden />,
+});
+/** Reserves the chart's height up front so nothing moves when it arrives. */
+function EChart(props: { build: (p: Palette) => Record<string, unknown>; height?: number; label: string }) {
+  return <div style={{ height: props.height ?? 320 }}><LazyEChart {...props} /></div>;
+}
 
 /** Insert a null point where readings stop for more than 20 min, so lines break instead of bridging the gap. */
 function gapped<T extends { ts: string }>(rows: T[], pick: (r: T) => number): [number, number | null][] {

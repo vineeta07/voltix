@@ -2,7 +2,7 @@
 
 import clsx from "clsx";
 import { AlertTriangle, Moon, Sun, type LucideIcon } from "lucide-react";
-import { animate, motion, useInView, useReducedMotion } from "motion/react";
+import { animate, useInView, useReducedMotion } from "motion/react";
 import Link from "next/link";
 import { useEffect, useRef } from "react";
 import { useIsDark } from "@/lib/stored";
@@ -195,14 +195,26 @@ export function PageSkeleton() {
   );
 }
 
-/* ---------- Reveal: fade and slide once, when scrolled into view ---------- */
-export function Reveal({ children, delay = 0, className, y = 14 }: { children: React.ReactNode; delay?: number; className?: string; y?: number }) {
-  return (
-    <motion.div className={className} initial={{ opacity: 0, y }} whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-60px" }} transition={{ duration: 0.45, delay, ease: [0.2, 0.7, 0.2, 1] }}>
-      {children}
-    </motion.div>
-  );
+/* ---------- Reveal: fade and slide once, when scrolled into view ----------
+   The server HTML is fully visible, so nothing waits on JavaScript to paint. After
+   hydration, only content that is still below the fold is hidden and then revealed. */
+export function Reveal({ children, delay = 0, className }: { children: React.ReactNode; delay?: number; className?: string }) {
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (el.getBoundingClientRect().top < window.innerHeight * 0.92) return;
+    el.classList.add("reveal-wait");
+    const io = new IntersectionObserver((entries) => {
+      if (entries.some((e) => e.isIntersecting)) {
+        el.classList.add("reveal-in");
+        io.disconnect();
+      }
+    }, { rootMargin: "0px 0px -8% 0px" });
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+  return <div ref={ref} className={className} style={delay ? { transitionDelay: `${delay}s` } : undefined}>{children}</div>;
 }
 
 /* ---------- Theme toggle ---------- */
