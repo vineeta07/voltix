@@ -5,7 +5,14 @@ once they are also listed in `frontend/public/photos/manifest.json`.
 
 | File | What it shows | Taken by | Date | Consent |
 |---|---|---|---|---|
-| _none yet_ | | | | |
+| `car-wallbox.jpg` | Electric car beside a wall charger | Stock photo, supplied by Vineeta | — | Source and licence **to confirm** |
+| `wallbox.jpg` | Wall charger with coiled cable | Stock photo, supplied by Vineeta | — | Source and licence **to confirm** |
+| `garage-charging.jpg` | Car charging in a basement car park | Stock photo, supplied by Vineeta | — | Source and licence **to confirm** |
+| `erickshaw-charging.jpg` | E-rickshaws at a charging point | Supplied by Vineeta; looks like a press photo | — | Source and licence **to confirm** before public use |
+| `panel-testing.jpg` | Distribution board being tested | Stock photo, supplied by Vineeta | — | Source and licence **to confirm** |
+
+None of these are from the pilot. The landing page labels them as
+illustrative. Replace them with real pilot photos when available.
 
 Rules
 

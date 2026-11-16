@@ -47,7 +47,7 @@ The tariff is per-site configuration (Admin → Tariff), not code.
 ## Images and fonts
 
 - Logo: the supplied files in `assets/brand/`, used unmodified.
-- Photos: none yet. See `assets/photos/README.md`.
+- Photos: five illustrative stock photos supplied by Vineeta, labelled on the landing page as not from the pilot. **TO CONFIRM**: the source, photographer and licence of each one (see `assets/photos/README.md`). The e-rickshaw photo in particular looks like a press photo and may not be free to use.
 - Icons: Lucide (ISC licence).
 - Fonts, self-hosted: Newsreader (SIL OFL 1.1), IBM Plex Sans, IBM Plex Mono and
   IBM Plex Sans Devanagari (SIL OFL 1.1), via the Fontsource packages.

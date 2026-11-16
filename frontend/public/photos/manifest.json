@@ -1,1 +1,11 @@
-[]
+{
+  "heading": "Where charging happens",
+  "note": "Illustrative photos, not from the VOLTIX pilot. Photos of the DTU meter, plugs and vehicles will replace them.",
+  "photos": [
+    { "src": "/photos/car-wallbox.webp", "alt": "An electric car parked beside a wall-mounted home charger", "caption": "A home charger: one of many on the same transformer" },
+    { "src": "/photos/wallbox.webp", "alt": "A wall-mounted EV charger with its cable coiled beneath it", "caption": "Wall charger" },
+    { "src": "/photos/erickshaw-charging.webp", "alt": "A row of green e-rickshaws plugged in at a charging point", "caption": "E-rickshaws at a charging point" },
+    { "src": "/photos/garage-charging.webp", "alt": "An electric car charging in a basement car park", "caption": "Shared parking, shared supply" },
+    { "src": "/photos/panel-testing.webp", "alt": "Gloved hands testing a distribution board with meter probes", "caption": "The limit VOLTIX protects lives here" }
+  ]
+}

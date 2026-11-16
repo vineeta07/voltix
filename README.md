@@ -149,7 +149,8 @@ Admin screens, with their sources in [`docs/sources.md`](docs/sources.md).
   draw). Learning each plug's normal curve is not done yet.
 - **NASA POWER** historical weather is not wired in; the forecaster uses
   Open-Meteo only.
-- **Photos.** The landing page has no pilot photos yet. See
+- **Photos.** The landing page uses illustrative stock photos, labelled as not
+  from the pilot. Their sources and licences are still to be confirmed. See
   `assets/photos/README.md`.
 
 ## Licence
